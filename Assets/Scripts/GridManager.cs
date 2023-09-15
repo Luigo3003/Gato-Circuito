@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    private bool Touched;
+
     [SerializeField]
     GameObject CellSelected;
+    public GameObject GridPrefab;
     bool CellIsSelected = false;
     Vector2 pos;
     [SerializeField] LayerMask cellMask;
+    public int sizeX = 0;
+    public int sizeY = 0;
     void Start()
     {
-        Touched = false; 
+        createGrid();
     }
     void Update()
     {
@@ -31,21 +34,29 @@ public class GridManager : MonoBehaviour
         }
         else if (Input.touchCount == 0)
         {
+            if(CellSelected != null)
+            {
+                CellSelected.GetComponent<CellPrefab>().OnTouchReleased();
+            }
             CellSelected = null;
             CellIsSelected = false;
 
         }
 
     }
-
     GameObject UpdateCellSelected()
     {
         RaycastHit2D hit = Physics2D.Raycast(pos, Vector3.forward, cellMask);
 
-        if (hit.collider.tag == "Cell")
+        if (hit)
         {
-            CellIsSelected = true;
-            return hit.collider.gameObject;
+            if (hit.collider.CompareTag("Cell"))
+            {
+                CellIsSelected = true;
+                return hit.collider.gameObject;
+            }
+            else
+                return null;
         }
         else
         {
@@ -53,4 +64,18 @@ public class GridManager : MonoBehaviour
         }
 
     }
+
+    void createGrid()
+    {
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeY; j++)
+            {
+                Vector2 NewPos = new Vector2(i, j);
+                GameObject gridCell = Instantiate(GridPrefab, this.transform);
+                gridCell.transform.position = NewPos;
+            }
+        }
+    }
+
 }
